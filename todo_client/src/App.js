@@ -1,16 +1,19 @@
-import logo from './logo.svg';
+import logo from "../src/svg/Infinity-1s-200px.svg";
 import './App.css';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
+
+
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [searchText, setSearchText] = useState("");
-
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -23,6 +26,7 @@ const App = () => {
         "https://todo-backend-fhsl.onrender.com/api/tasks"
       );
       setTasks(response.data);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -51,6 +55,8 @@ const App = () => {
 
   //delete
   const handleDeleteTask = async (taskId) => {
+   
+   
     try {
       await axios.delete(
         `https://todo-backend-fhsl.onrender.com/api/tasks/${taskId}`
@@ -63,6 +69,10 @@ const App = () => {
 
   //search
   const handleSearch = async () => {
+     if (!searchText) {
+       toast.error("Please provide a Search");
+       return;
+     }
     try {
       const response = await axios.get(
         `https://todo-backend-fhsl.onrender.com/api/tasks/todos-search/${searchText}`
@@ -113,18 +123,24 @@ const App = () => {
       </div>
       <h2>All Tasks</h2>
       <div className="tasklist">
-        {tasks.map((task) => (
-          <div className="task" key={task._id}>
-            <h3>{task.title}</h3>
-            <p>{task.description}</p>
-            <button
-              className="delete-button"
-              onClick={() => handleDeleteTask(task._id)}
-            >
-              Delete
-            </button>
+        {isLoading ? (
+          <div className="loading">
+            <img src={logo} />
           </div>
-        ))}
+        ) : (
+          tasks.map((task) => (
+            <div className="task" key={task._id}>
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
+              <button
+                className="delete-button"
+                onClick={() => handleDeleteTask(task._id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))
+        )}
       </div>
       <ToastContainer />
     </div>
